@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<link rel="stylesheet" type="text/css" href="./style.css?s"/>
 	<script src="./common.js?a"></script>
-	<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+	<script src="./qrcode.min.js"></script>
 </head>
 <body>
 
@@ -69,11 +69,33 @@ function updateQR() {
 	}
 	var qrUrl = baseUrl + '/?code=' + key
 	qrDiv.innerHTML = ''
-	new QRCode(qrDiv, {
-		text: qrUrl,
-		width: 160,
-		height: 160
-	})
+	// Try to create a QR code. Some eReader browsers have old JS engines
+	// or don't support the QR library — fall back to a plain text/code view.
+	try {
+		if (typeof QRCode === 'function') {
+			new QRCode(qrDiv, {
+				text: qrUrl,
+				width: 160,
+				height: 160
+			})
+		} else {
+			// QR library not available (maybe blocked). Show fallback.
+			throw new Error('QRCode not available')
+		}
+	} catch (err) {
+		// On old Kobo browsers QR creation may throw — ensure the key is
+		// still visible and provide a direct URL so the user can type it.
+		qrDiv.innerHTML = ''
+		var fallback = document.createElement('div')
+		fallback.style.padding = '8px'
+		fallback.style.textAlign = 'center'
+		fallback.innerHTML = '<div style="font-size: 1.2em; font-weight: bold;">' + key + '</div>' +
+			'<div style="margin-top:6px; word-break: break-all; font-size: 0.9em;">' + qrUrl + '</div>'
+		qrDiv.appendChild(fallback)
+		// Also update the visible key output if present
+		if (keyOutput) keyOutput.textContent = key
+		console.error('QR generation failed, using fallback:', err)
+	}
 }
 
 function pollFile () {
