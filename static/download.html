@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<link rel="stylesheet" type="text/css" href="./style.css?s"/>
 	<script src="./common.js?a"></script>
+	<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -22,6 +23,9 @@
 				</svg>
 			</button>
 		</div>
+		<div id="qrwrapper" style="margin-top: 15px;">
+				<div id="qrcode" style="display: flex; justify-content: center; align-items: center;"></div>
+			</div>
 	</div>
 
 	<div class="center">
@@ -39,7 +43,7 @@
 		Visit this on other devices to send ebooks to this ereader:<br/><a id="siteurl">https://send.djazz.se</a><br/>
 		<br/>
 		Created by djazz. Source code on <a href="https://github.com/daniel-j/send2ereader" target="_blank">Github</a><br/>
-		Last updated: 2024-10-20<br/>
+		Last updated: 2025-10-10<br/>
 	</div>
 </div>
 
@@ -53,13 +57,35 @@ var downloads = document.getElementById('downloads')
 var downloadlink = document.getElementById('downloadlink')
 var urlsnode = document.getElementById('urls')
 var siteurl = document.getElementById('siteurl')
+var qrDiv = document.getElementById('qrcode')
 var key = null
 var pollTimer = null
+
+function updateSiteUrl() {
+	siteurl.textContent = baseUrl
+	siteurl.href = baseUrl
+	siteurl.target = '_self'
+}
+
+function updateQR() {
+	if (!key) {
+		qrDiv.innerHTML = ''
+		return
+	}
+	var qrUrl = baseUrl + '/?code=' + key
+	qrDiv.innerHTML = ''
+	new QRCode(qrDiv, {
+		text: qrUrl,
+		width: 160,
+		height: 160
+	})
+}
 
 function pollFile () {
 	if (!key) {
 		keyOutput.textContent = '––––'
 		downloads.style.display = 'none'
+		updateQR()
 		return
 	}
 	xhr('GET', './status/' + key, function (x) {
@@ -70,6 +96,7 @@ function pollFile () {
 			key = null
 			keyOutput.textContent = '––––'
 			downloads.style.display = 'none'
+			updateQR()
 			return
 		}
 		if (data.error) {
@@ -77,6 +104,7 @@ function pollFile () {
 			key = null
 			keyOutput.textContent = '––––'
 			downloads.style.display = 'none'
+			updateQR()
 		}
 		var urls = data.urls && data.urls.length > 0 ? data.urls : null
 		if (data.file) {
@@ -99,6 +127,7 @@ function pollFile () {
 				urlsnode.appendChild(div)
 			})
 		}
+		updateQR()
 	})
 }
 
@@ -119,17 +148,15 @@ function generateKey () {
 			downloadlink.href = ''
 		}
 		keyGenBtn.blur()
+		updateQR()
 	})
 }
 
 window.onload = function () {
 	keyGenBtn.onclick = generateKey
+	updateSiteUrl()
 	generateKey()
 }
-
-siteurl.textContent = window.location.href
-siteurl.href = siteurl.textContent
-siteurl.target = '_self'
 
 </script>
 </body>
