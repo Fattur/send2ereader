@@ -6,7 +6,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 	<link rel="stylesheet" type="text/css" href="./style.css?s"/>
 	<script src="./common.js?a"></script>
-	<script src="./qrcode.min.js"></script>
+	<!-- qrcode.min.js is loaded dynamically after onload to avoid old eReader
+	     parsers choking on the minified file and preventing inline scripts
+	     from running. -->
 </head>
 <body>
 
@@ -172,6 +174,24 @@ function generateKey () {
 window.onload = function () {
 	keyGenBtn.onclick = generateKey
 	generateKey()
+	// Dynamically load the QR lib after initial page scripts run. This
+	// prevents parse-time errors in old browsers from stopping the page JS.
+	try {
+		var s = document.createElement('script')
+		s.src = './qrcode.min.js'
+		s.type = 'text/javascript'
+		s.onload = function () {
+			console.log('qrcode.min.js loaded')
+			// If a key already exists, regenerate the QR
+			if (key) updateQR()
+		}
+		s.onerror = function (e) {
+			console.warn('Failed to load qrcode.min.js', e)
+		}
+		document.head.appendChild(s)
+	} catch (err) {
+		console.warn('Dynamic load of qrcode.min.js failed', err)
+	}
 }
 	siteurl.textContent = window.location.href
 	siteurl.href = siteurl.textContent
