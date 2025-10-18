@@ -61,11 +61,6 @@ var qrDiv = document.getElementById('qrcode')
 var key = null
 var pollTimer = null
 
-function updateSiteUrl() {
-	siteurl.textContent = baseUrl
-	siteurl.href = baseUrl
-	siteurl.target = '_self'
-}
 
 function updateQR() {
 	if (!key) {
@@ -154,10 +149,11 @@ function generateKey () {
 
 window.onload = function () {
 	keyGenBtn.onclick = generateKey
-	updateSiteUrl()
 	generateKey()
 }
-
+	siteurl.textContent = window.location.href
+	siteurl.href = siteurl.textContent
+	siteurl.target = '_self'
 </script>
 </body>
 </html>
