@@ -52,12 +52,6 @@ var siteurl = document.getElementById('siteurl')
 
 var flashtimer = null
 
-function updateSiteUrl() {
-    siteurl.textContent = baseUrl
-    siteurl.href = baseUrl
-    siteurl.target = '_self'
-}
-
 function getQueryParam(name) {
     const urlParams = new URLSearchParams(window.location.search)
     return urlParams.get(name)
@@ -189,8 +183,11 @@ uploadform.addEventListener('submit', function (e) {
 	return false
 }, false)
 
+siteurl.textContent = window.location.href
+siteurl.href = siteurl.textContent
+siteurl.target = '_self'
+
 window.onload = function () {
-    updateSiteUrl()
     var code = getQueryParam('code')
     if (code) {
         keyinput.value = code.toUpperCase()
