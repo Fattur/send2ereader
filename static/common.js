@@ -1,7 +1,5 @@
 'use strict'
 
-const baseUrl = window.location.origin
-
 function log(str) {
     var node = document.createElement("div")
     node.textContent = str
