@@ -67,7 +67,10 @@ function updateQR() {
 		qrDiv.innerHTML = ''
 		return
 	}
-	var qrUrl = baseUrl + '/?code=' + key
+	var baseUrl = window.location.origin
+	// ensure baseUrl ends with a slash so adding query params works consistently
+	if (baseUrl.charAt(baseUrl.length - 1) !== '/') baseUrl += '/'
+	var qrUrl = baseUrl + '?code=' + key
 	qrDiv.innerHTML = ''
 	new QRCode(qrDiv, {
 		text: qrUrl,
